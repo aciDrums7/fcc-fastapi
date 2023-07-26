@@ -29,7 +29,7 @@ my_posts: list[Post] = [
 ]
 
 
-def find_post(id: int) -> Tuple[int, Post]:
+def find_post(id: int) -> Optional[Tuple[int, Post]]:
     return next(
         (index, post) for index, post in enumerate(my_posts) if post["id"] == id
     )
@@ -62,7 +62,7 @@ def get_latest_post():
 
 #! If you change the order of this 2 GET requests, you'll get an error!
 @app.get("/posts/{id}")
-def get_post(id: int = Path(...)):
+def get_post(id: int = Path(..., title="Post ID")):
     """Get Post"""
     post: Post = None
     try:
@@ -82,7 +82,7 @@ def get_post(id: int = Path(...)):
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post):
+def create_post(post: Post = Body(..., embed=True, title="Post")):
     """Create a new post"""
     post.id = randrange(0, 10000000)
     my_posts.append(post)
@@ -108,24 +108,24 @@ def update_post(
     return {"data": my_posts[saved_post_index]}
 
 
-@app.patch("posts/{id}")
-def update_post_property(id: int, property: any):
-    """Update a post property"""
-    saved_post = Post
-    try:
-        saved_post_index, saved_post = find_post(id)
-    except StopIteration as exc:
-        raise_not_found_exception(exc, id)
+# @app.patch("/posts/{id}")
+# def update_post_property(id: int, property):
+#     """Update a post property"""
+#     saved_post = Post
+#     try:
+#         saved_post_index, saved_post = find_post(id)
+#     except StopIteration as exc:
+#         raise_not_found_exception(exc, id)
 
-    return {"data": my_posts[saved_post_index]}
+#     return {"data": my_posts[saved_post_index]}
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int = Path(...)):
+def delete_post(id: int = Path(..., title="Post ID")):
     """Delete a post"""
     post_index: int
     try:
-        post_index = find_post(id).get("index")
+        post_index = find_post(id)[0]
         my_posts.pop(post_index)
     except StopIteration as exc:
         raise_not_found_exception(exc, id)
