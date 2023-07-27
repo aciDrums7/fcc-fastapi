@@ -15,8 +15,8 @@ class Post(BaseModel):
     """Class Post"""
 
     id: Optional[int] = None
-    title: str
-    content: str
+    title: str = None
+    content: str = None
     # 1 if not provided, default value will be False
     published: bool = False
     # 2 optional value, if not provided, default value will be None
@@ -24,14 +24,14 @@ class Post(BaseModel):
 
 
 my_posts: list[Post] = [
-    {"id": 1, "title": "post 1", "content": "content of post 1"},
-    {"id": 2, "title": "post 2", "content": "content of post 2"},
+    Post(**{"id": 1, "title": "post 1", "content": "content of post 1"}),
+    Post(**{"id": 2, "title": "post 2", "content": "content of post 2"}),
 ]
 
 
 def find_post(id: int) -> Optional[Tuple[int, Post]]:
     return next(
-        (index, post) for index, post in enumerate(my_posts) if post["id"] == id
+        (index, Post(**post)) for index, post in enumerate(my_posts) if post["id"] == id
     )
 
 
@@ -72,15 +72,6 @@ def get_post(id: int = Path(..., title="Post ID")):
 
     return {"data": post}
 
-
-# @app.post("/post")
-# def create_post(payload: dict = Body(...)):
-#     print(payload)
-#     return {
-#         "new_post": {"title": f"{payload['title']}", "content": f"{payload['content']}"}
-#     }
-
-
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post = Body(..., embed=True, title="Post")):
     """Create a new post"""
@@ -108,16 +99,18 @@ def update_post(
     return {"data": my_posts[saved_post_index]}
 
 
-# @app.patch("/posts/{id}")
-# def update_post_property(id: int, property):
-#     """Update a post property"""
-#     saved_post = Post
-#     try:
-#         saved_post_index, saved_post = find_post(id)
-#     except StopIteration as exc:
-#         raise_not_found_exception(exc, id)
+@app.patch("/posts/{id}")
+def update_post_partial(id: int, post: Post):
+    """Update a post property"""
+    try:
+        saved_post_index, saved_post = find_post(id)
+        update_data = post.model_dump(exclude_unset=True)
+        updated_post = saved_post.model_copy(update=update_data)
+        my_posts[saved_post_index] = updated_post.model_dump()
+    except StopIteration as exc:
+        raise_not_found_exception(exc, id)
 
-#     return {"data": my_posts[saved_post_index]}
+    return {"data": my_posts[saved_post_index]}
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
