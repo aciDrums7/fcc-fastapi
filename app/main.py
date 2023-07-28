@@ -72,6 +72,7 @@ def get_post(id: int = Path(..., title="Post ID")):
 
     return {"data": post}
 
+
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post = Body(..., embed=True, title="Post")):
     """Create a new post"""
