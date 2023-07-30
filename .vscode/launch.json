@@ -5,16 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: FastAPI",
+            "name": "Python: fastAPI",
             "type": "python",
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "app.main.py:app",
+                "app.main:app",
                 "--reload"
             ],
             "jinja": true,
-            "justMyCode": true
-        }
+            "justMyCode": true,
+            "pythonArgs": [
+                "-Xfrozen_modules=off"
+            ],
+        },
     ]
 }
