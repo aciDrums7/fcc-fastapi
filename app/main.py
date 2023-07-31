@@ -1,228 +1,117 @@
 """ Basic CRUD using FastAPI """
-import time
-from typing import Optional, Tuple
+from typing import Union
 
-# from random import randrange
-from fastapi import FastAPI, Path, Body, status, HTTPException
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from fastapi import FastAPI, Depends, status
+from sqlalchemy.orm import Session
+from app import models, crud, schemas, exception_handling
+from app.exception_handling import NotFoundException
+from app.database import SessionLocal, engine
 
-# ? pydantic is useful for data validation (request body/params) + schema definition
-from pydantic import BaseModel
+models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
-
-""" CLASSES """
+fastAPI = FastAPI()
 
 
-class Post(BaseModel):
-    """Class Post"""
-
-    id: Optional[int] = None
-    title: str = None
-    content: str = None
-    # 1 if not provided, default value will be False
-    published: bool = False
-    # 2 optional value, if not provided, default value will be None
-    rating: Optional[int] = None
-
-
-class NotFoundException(Exception):
-    """SQL NotFoundException"""
-
-
-""" DB CONNECTION """
-
-while True:
+# Dependency
+def get_db():
+    db = SessionLocal()
     try:
-        conn = psycopg2.connect(
-            host="localhost",
-            database="fastAPI",
-            user="postgres",
-            password="postgres",
-            cursor_factory=RealDictCursor,
-        )
-        db = conn.cursor()
-        print("Database connection was successful!")
-        break
+        yield db
     except Exception as err:
-        print("Connecting to database failed")
-        print("Error: ", err)
-        time.sleep(3)
-
-""" UTILS """
-
-my_posts: list[Post] = [
-    Post(**{"id": 1, "title": "post 1", "content": "content of post 1"}),
-    Post(**{"id": 2, "title": "post 2", "content": "content of post 2"}),
-]
-
-
-def find_post(id: int) -> Optional[Tuple[int, Post]]:
-    """Find Post by id"""
-    return next(
-        (index, Post(**post)) for index, post in enumerate(my_posts) if post.id == id
-    )
-
-
-""" ERRORS """
-
-
-def raise_not_found_exception(err: Exception, id: int) -> None:
-    """Raise a 404: Not Found Exception"""
-    err_msg: str = f"Post with id: {id} not found"
-    print(err_msg)
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail=f"{err_msg}"
-    ) from err
-
-
-def raise_internal_server_error(err: Exception) -> None:
-    """Raise a 500: Internal Server Error"""
-    print(err)
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{err}"
-    ) from err
+        print(err)
+    finally:
+        db.close()
 
 
 """ GET """
 
 
-@app.get("/")
+@fastAPI.get("/")
 def root():
     """Hello World"""
     return {"message": "Hello World"}
 
 
-@app.get("/posts")
-def get_posts():
+@fastAPI.get("/posts", response_model=list[schemas.Post])
+def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Get Posts"""
     try:
-        db.execute("SELECT * FROM posts ORDER BY id ASC")
-        posts = db.fetchall()
-
-        return {"data": posts}
+        return crud.get_posts(db, skip=skip, limit=limit)
     except Exception as err:
-        raise_internal_server_error(err)
+        exception_handling.raise_internal_server_error(err)
 
 
-@app.get("/posts/latest")
-def get_latest_post():
+@fastAPI.get("/posts/latest", response_model=Union[schemas.Post, None])
+def get_latest_post(db: Session = Depends(get_db)):
     """Get Latest Post"""
     try:
-        db.execute("SELECT * FROM posts ORDER BY id DESC LIMIT 1")
-        post = db.fetchone()
+        post = crud.get_latest_post(db)
 
-        return {"data": post}
+        return post
     except Exception as err:
-        raise_internal_server_error(err)
+        exception_handling.raise_internal_server_error(err)
 
 
 #! If you change the order of this 2 GET requests ⬆⬇, you'll get an error!
 
 
-@app.get("/posts/{id}")
-def get_post(id: int):
+@fastAPI.get("/posts/{post_id}", response_model=schemas.Post)
+def get_post(post_id: int, db: Session = Depends(get_db)):
     """Get Post"""
     try:
-        db.execute("SELECT * FROM posts WHERE id = %s", (str(id)))
-        post = db.fetchone()
+        post = crud.get_post(db, post_id)
         if post == None:
             raise NotFoundException
 
-        return {"data": post}
+        return post
     except NotFoundException as err:
-        raise_not_found_exception(err, id)
+        exception_handling.raise_not_found_exception(err, post_id)
     except Exception as err:
-        raise_internal_server_error(err)
+        exception_handling.raise_internal_server_error(err)
 
 
 """ POST """
 
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(request_post: Post):
+@fastAPI.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
+def create_post(post: schemas.PostUpsert, db: Session = Depends(get_db)):
     """Create a new post"""
     try:
-        db.execute(
-            "INSERT INTO posts (title, content, published, rating) VALUES (%s, %s, %s, %s) RETURNING *",
-            (
-                request_post.title,
-                request_post.content,
-                request_post.published,
-                request_post.rating,
-            ),
-        )
-        saved_post = db.fetchone()
-        conn.commit()
+        db_post = crud.create_post(db, post)
 
-        return {"data": saved_post}
+        return db_post
     except Exception as err:
-        raise_internal_server_error(err)
+        exception_handling.raise_internal_server_error(err)
 
 
 """ PUT """
 
 
-@app.put("/posts/{id}")
-def update_post(
-    id: int,
-    request_post: Post,
-):
-    """Update a post"""
+@fastAPI.put("/posts/{post_id}")
+def update_post(post_id: int, post: schemas.PostUpsert, db: Session = Depends(get_db)):
+    """Update a Post"""
     try:
-        db.execute(
-            "UPDATE posts SET title = %s, content = %s, published = %s, rating = %s WHERE id = %s RETURNING *",
-            (
-                request_post.title,
-                request_post.content,
-                request_post.published,
-                request_post.rating,
-                id,
-            ),
-        )
-        updated_post = db.fetchone()
-        if updated_post == None:
+        db_post = crud.get_post(db, post_id)
+        if db_post is None:
             raise NotFoundException
-        conn.commit()
+        updated_post = crud.update_post(db, post_id, post)
 
-        return {"data": updated_post}
+        return updated_post
     except NotFoundException as err:
-        raise_not_found_exception(err, id)
+        exception_handling.raise_not_found_exception(err, post_id)
     except Exception as err:
-        raise_internal_server_error(err)
-
-
-""" PATCH """
-
-
-@app.patch("/posts/{id}")
-def update_post_partial(id: int, request_post: Post):
-    """Update a post property"""
-    try:
-        saved_post_index, saved_post = find_post(id)
-        update_data = request_post.model_dump(exclude_unset=True)
-        updated_post = saved_post.model_copy(update=update_data)
-        my_posts[saved_post_index] = updated_post.model_dump()
-    except StopIteration as err:
-        raise_not_found_exception(err, id)
-
-    return {"data": my_posts[saved_post_index]}
+        exception_handling.raise_internal_server_error(err)
 
 
 """ DELETE """
 
 
-@app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
+@fastAPI.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(post_id: int, db: Session = Depends(get_db)):
     """Delete a post"""
     try:
-        db.execute("DELETE FROM posts WHERE id = %s RETURNING * ", (str(id),))
-        deleted_post = db.fetchone()
-        if deleted_post == None:
-            raise Exception
-        conn.commit()
+        crud.delete_post(db, post_id)
+
         return None
     except Exception as err:
-        print(err)
-        raise_not_found_exception(err, id)
+        exception_handling.raise_not_found_exception(err, post_id)
