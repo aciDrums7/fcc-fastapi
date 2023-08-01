@@ -16,7 +16,7 @@ router = APIRouter()
 """ GET """
 
 
-@router.get("/", response_model=list[posts_schemas.Post])
+@router.get("", response_model=list[posts_schemas.Post])
 def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Get Posts"""
     try:
@@ -63,7 +63,7 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=posts_schemas.Post
+    "", status_code=status.HTTP_201_CREATED, response_model=posts_schemas.Post
 )
 def create_post(post: posts_schemas.PostUpsert, db: Session = Depends(get_db)):
     """Create a new post"""

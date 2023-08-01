@@ -10,12 +10,10 @@ from ..exceptions.exception_handling import NotFoundException
 
 router = APIRouter()
 
-# TODO: implement all the APIs
-
 """ GET """
 
 
-@router.get("/", response_model=list[users_schemas.User])
+@router.get("", response_model=list[users_schemas.User])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Get Users"""
     try:
@@ -47,7 +45,7 @@ def get_post(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=users_schemas.User
+    "", status_code=status.HTTP_201_CREATED, response_model=users_schemas.User
 )
 def create_post(user: users_schemas.UserUpsert, db: Session = Depends(get_db)):
     """Create a new User"""
