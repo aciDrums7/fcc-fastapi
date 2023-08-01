@@ -20,7 +20,7 @@ router = APIRouter()
 def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Get Posts"""
     try:
-        posts = posts_service.get_posts(db, skip=skip, limit=limit)
+        posts = posts_service.get_posts(db, skip, limit)
 
         return posts
 
@@ -114,4 +114,4 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     except NotFoundException as err:
         exception_handling.raise_not_found_exception(err, post_id)
     except Exception as err:
-        exception_handling.raise_not_found_exception(err, post_id)
+        exception_handling.raise_internal_server_error(err, post_id)

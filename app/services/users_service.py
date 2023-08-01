@@ -9,7 +9,13 @@ from app.schemas import users_schemas
 
 def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[users_schemas.User]:
     """Get Users"""
-    return db.query(users_model.User).offset(skip).limit(limit).all()
+    return (
+        db.query(users_model.User)
+        .order_by(users_model.User.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def get_user(db: Session, user_id: int) -> Optional[users_schemas.User]:

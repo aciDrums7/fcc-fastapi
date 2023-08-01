@@ -14,7 +14,6 @@ class PostBase(BaseModel):
     published: Optional[bool] = False
     # 2 optional value, if not provided, default value will be None
     rating: Optional[int] = None
-    created_at: Optional[datetime] = None
 
 
 class PostUpsert(PostBase):
@@ -23,6 +22,7 @@ class PostUpsert(PostBase):
 
 class Post(PostBase):
     id: int
+    created_at: datetime
 
     # ? Pydantic's orm_mode will tell the Pydantic model to read the data even if it is not a dict
     # ? but an ORM model (or any other arbitrary object with attributes).
