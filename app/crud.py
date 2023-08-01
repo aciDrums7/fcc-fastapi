@@ -23,7 +23,7 @@ def get_latest_post(db: Session) -> Optional[schemas.Post]:
     return db.query(models.Post).order_by(desc(models.Post.id)).first()
 
 
-""" POST """
+""" UPSERT """
 
 
 def create_post(db: Session, post: schemas.PostUpsert) -> Optional[schemas.Post]:
