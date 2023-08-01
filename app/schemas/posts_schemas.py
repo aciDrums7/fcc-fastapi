@@ -1,4 +1,4 @@
-""" Schemas File """
+""" Posts Schemas """
 # ? pydantic is useful for data validation (request body/params) + schema definition
 from datetime import datetime
 from typing import Optional

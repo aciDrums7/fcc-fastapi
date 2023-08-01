@@ -1,7 +1,7 @@
-""" Models File """
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, func
+""" Posts Model """
+from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, func, text
 
-from .database import Base
+from ..database import Base
 
 
 class Post(Base):
@@ -12,4 +12,6 @@ class Post(Base):
     content = Column(String, nullable=False)
     published = Column(Boolean, nullable=True, default=False)
     rating = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
