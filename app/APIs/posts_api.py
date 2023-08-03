@@ -10,7 +10,7 @@ from ..exceptions import exception_handling
 from ..exceptions.exception_handling import NotFoundException
 
 
-router = APIRouter()
+router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 """ GET """
