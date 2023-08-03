@@ -3,11 +3,14 @@ from typing import Union
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from ..database import get_db
-from ..schemas import posts_schemas
-from ..services import posts_service
-from ..exceptions import exception_handling
-from ..exceptions.exception_handling import NotFoundException
+from app.database import get_db
+from app.schemas import posts_schemas
+from app.services import posts_service
+from app.exceptions.exception_handling import (
+    NotFoundException,
+    raise_not_found_exception,
+    raise_internal_server_error,
+)
 
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
@@ -25,7 +28,7 @@ def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
         return posts
 
     except Exception as err:
-        exception_handling.raise_internal_server_error(err)
+        raise_internal_server_error(err)
 
 
 @router.get("/latest", response_model=Union[posts_schemas.Post, None])
@@ -37,7 +40,7 @@ def get_latest_post(db: Session = Depends(get_db)):
         return post
 
     except Exception as err:
-        exception_handling.raise_internal_server_error(err)
+        raise_internal_server_error(err)
 
 
 #! If you change the order of this 2 GET requests ⬆⬇, you'll get an error!
@@ -54,17 +57,15 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
         return post
 
     except NotFoundException as err:
-        exception_handling.raise_not_found_exception(err, post_id)
+        raise_not_found_exception(err)
     except Exception as err:
-        exception_handling.raise_internal_server_error(err)
+        raise_internal_server_error(err)
 
 
 """ POST """
 
 
-@router.post(
-    "", status_code=status.HTTP_201_CREATED, response_model=posts_schemas.Post
-)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=posts_schemas.Post)
 def create_post(post: posts_schemas.PostUpsert, db: Session = Depends(get_db)):
     """Create a new post"""
     try:
@@ -73,7 +74,7 @@ def create_post(post: posts_schemas.PostUpsert, db: Session = Depends(get_db)):
         return db_post
 
     except Exception as err:
-        exception_handling.raise_internal_server_error(err)
+        raise_internal_server_error(err)
 
 
 """ PUT """
@@ -93,9 +94,9 @@ def update_post(
         return updated_post
 
     except NotFoundException as err:
-        exception_handling.raise_not_found_exception(err, post_id)
+        raise_not_found_exception(err)
     except Exception as err:
-        exception_handling.raise_internal_server_error(err)
+        raise_internal_server_error(err)
 
 
 """ DELETE """
@@ -106,12 +107,12 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     """Delete a post"""
     try:
         deleted_post = posts_service.delete_post(db, post_id)
-        if delete_post is None:
+        if deleted_post is None:
             raise NotFoundException
 
         return None
 
     except NotFoundException as err:
-        exception_handling.raise_not_found_exception(err, post_id)
+        raise_not_found_exception(err)
     except Exception as err:
-        exception_handling.raise_internal_server_error(err, post_id)
+        raise_internal_server_error(err, post_id)

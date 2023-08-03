@@ -20,9 +20,16 @@ def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[users_schema
     )
 
 
-def get_user(db: Session, user_id: int) -> Optional[users_schemas.User]:
+def get_user_by_id(db: Session, user_id: int) -> Optional[users_schemas.User]:
     """Get User By Id"""
     return db.query(users_model.User).filter(users_model.User.id == user_id).first()
+
+
+def get_user_by_email(db: Session, user_email: str) -> Optional[users_schemas.User]:
+    """Get User By Email"""
+    return (
+        db.query(users_model.User).filter(users_model.User.email == user_email).first()
+    )
 
 
 """ UPSERT """
@@ -48,10 +55,13 @@ def update_user(
     db: Session, user_id: int, user: users_schemas.UserUpsert
 ) -> Optional[users_schemas.User]:
     """Update User"""
-    db_user = get_user(db, user_id)
+    db_user = get_user_by_id(db, user_id)
     if db_user is None:
         return None
     for attr, value in user.model_dump(exclude_unset=True).items():
+        if attr == "password":
+            setattr(db_user, attr, hash(value))
+            continue
         setattr(db_user, attr, value)
     db.commit()
     db.refresh(db_user)
@@ -64,7 +74,7 @@ def update_user(
 
 def delete_user(db: Session, user_id: int) -> Optional[users_schemas.User]:
     """Delete a post"""
-    db_user = get_user(db, user_id)
+    db_user = get_user_by_id(db, user_id)
     if db_user is None:
         return None
     db.delete(db_user)

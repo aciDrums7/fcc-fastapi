@@ -6,13 +6,8 @@ class NotFoundException(Exception):
     """SQL NotFoundException"""
 
 
-def raise_not_found_exception(err: Exception, id: int) -> None:
-    """Raise a 404: Not Found Exception"""
-    err_msg: str = f"Post with id: {id} not found"
-    print(err_msg)
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail=f"{err_msg}"
-    ) from err
+class InvalidCredentialsException(Exception):
+    """Invalid Credentials Exception"""
 
 
 def raise_internal_server_error(err: Exception) -> None:
@@ -21,3 +16,17 @@ def raise_internal_server_error(err: Exception) -> None:
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{err}"
     ) from err
+
+
+def raise_not_found_exception(err: Exception) -> None:
+    """Raise a 404: Not Found Exception"""
+    err_msg: str = "Record Not Found"
+    print(err_msg)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=err_msg) from err
+
+
+def raise_invalid_credentials(err: Exception) -> None:
+    """Raise a 404: Not Found Exception"""
+    err_msg: str = "Invalid Credentials"
+    print(err_msg)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=err_msg) from err
