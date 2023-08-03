@@ -44,9 +44,7 @@ def get_post(user_id: int, db: Session = Depends(get_db)):
 """ POST """
 
 
-@router.post(
-    "", status_code=status.HTTP_201_CREATED, response_model=users_schemas.User
-)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=users_schemas.User)
 def create_post(user: users_schemas.UserUpsert, db: Session = Depends(get_db)):
     """Create a new User"""
     try:

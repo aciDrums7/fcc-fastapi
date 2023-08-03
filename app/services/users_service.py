@@ -3,6 +3,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from app.models import users_model
 from app.schemas import users_schemas
+from app.utils.hashing import hash
+
 
 """ GET """
 
@@ -30,6 +32,10 @@ def create_user(
     db: Session, user: users_schemas.UserUpsert
 ) -> Optional[users_schemas.User]:
     """Create User"""
+    # 1 hash the password
+    user.password = hash(user.password)
+
+    # 2 persist the user in the database
     db_user = users_model.User(**user.model_dump())
     db.add(db_user)
     db.commit()
