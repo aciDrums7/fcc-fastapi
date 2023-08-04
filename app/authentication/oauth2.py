@@ -3,10 +3,12 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from app.database.database import get_db
 from app.exceptions.http_exceptions import UnauthorizedException
 from app.models.users_model import User
 from app.schemas.token_schemas import TokenData
 from app.services import users_service
+from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -42,6 +44,9 @@ def verify_jwt(token: str) -> Union[TokenData, None]:
         raise UnauthorizedException(err)
 
 
-def get_current_user(token: TokenData = Depends(oauth2_scheme)) -> Union[User, None]:
-    current_user = users_service.get_user_by_id(token.id)
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> Union[User, None]:
+    token_data = verify_jwt(token)
+    current_user = users_service.get_user_by_id(db, token_data.id)
     return current_user
