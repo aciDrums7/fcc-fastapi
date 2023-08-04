@@ -1,7 +1,7 @@
 """ Users APIs """
 
 from fastapi import APIRouter, Depends, status
-from app.database import get_db
+from app.database.database import get_db
 from sqlalchemy.orm import Session
 from app.schemas import users_schemas
 from app.services import users_service

@@ -1,7 +1,7 @@
 """ Users Model """
 from sqlalchemy import TIMESTAMP, Column, Integer, String, text
 
-from ..database import Base
+from ..database.database import Base
 
 
 class User(Base):

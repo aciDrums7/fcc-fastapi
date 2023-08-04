@@ -3,7 +3,7 @@ from typing import Union
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.database.database import get_db
 from app.schemas import posts_schemas
 from app.services import posts_service
 from app.exceptions.exception_handling import (

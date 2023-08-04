@@ -1,7 +1,7 @@
 """ Posts Model """
 from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, func, text
 
-from ..database import Base
+from ..database.database import Base
 
 
 class Post(Base):
