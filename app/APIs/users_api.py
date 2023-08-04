@@ -71,7 +71,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
 def create_user(
     user: UserUpsert,
     db: Session = Depends(get_db),
-    user_token_data: TokenData = Depends(oauth2.get_current_user),
+    current_user: TokenData = Depends(oauth2.get_current_user),
 ):
     """Create a new User"""
     try:
@@ -91,7 +91,7 @@ def update_user(
     user_id: int,
     user: UserUpsert,
     db: Session = Depends(get_db),
-    user_token_data: TokenData = Depends(oauth2.get_current_user),
+    current_user: TokenData = Depends(oauth2.get_current_user),
 ):
     """Update a User"""
     try:
@@ -118,7 +118,7 @@ def update_user(
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    user_token_data: TokenData = Depends(oauth2.get_current_user),
+    current_user: TokenData = Depends(oauth2.get_current_user),
 ):
     """Delete a User"""
     try:

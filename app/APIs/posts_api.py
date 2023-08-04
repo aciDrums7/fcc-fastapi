@@ -71,7 +71,7 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
 def create_post(
     post: PostUpsert,
     db: Session = Depends(get_db),
-    user_token_data: TokenData = Depends(oauth2.get_current_user),
+    current_user: TokenData = Depends(oauth2.get_current_user),
 ):
     """Create a new post"""
     try:
@@ -91,7 +91,7 @@ def update_post(
     post_id: int,
     post: PostUpsert,
     db: Session = Depends(get_db),
-    user_token_data: TokenData = Depends(oauth2.get_current_user),
+    current_user: TokenData = Depends(oauth2.get_current_user),
 ):
     """Update a Post"""
     try:
@@ -118,7 +118,7 @@ def update_post(
 def delete_post(
     post_id: int,
     db: Session = Depends(get_db),
-    user_token_data: TokenData = Depends(oauth2.get_current_user),
+    current_user: TokenData = Depends(oauth2.get_current_user),
 ):
     """Delete a post"""
     try:

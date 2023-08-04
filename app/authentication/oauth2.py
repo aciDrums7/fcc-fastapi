@@ -4,8 +4,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from app.exceptions.http_exceptions import UnauthorizedException
-
+from app.models.users_model import User
 from app.schemas.token_schemas import TokenData
+from app.services import users_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -41,5 +42,6 @@ def verify_jwt(token: str) -> Union[TokenData, None]:
         raise UnauthorizedException(err)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[TokenData, None]:
-    return verify_jwt(token)
+def get_current_user(token: TokenData = Depends(oauth2_scheme)) -> Union[User, None]:
+    current_user = users_service.get_user_by_id(token.id)
+    return current_user
