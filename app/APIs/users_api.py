@@ -28,6 +28,7 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
         return users
 
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -45,6 +46,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
         print(err)
         raise err
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -80,6 +82,7 @@ def create_user(
         return db_user
 
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -106,6 +109,7 @@ def update_user(
         print(err)
         raise err
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -132,4 +136,5 @@ def delete_user(
         print(err)
         raise err
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)

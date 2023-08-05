@@ -14,6 +14,7 @@ class PostBase(BaseModel):
     published: Optional[bool] = False
     # 2 optional value, if not provided, default value will be None
     rating: Optional[int] = None
+    owner_id: Optional[int] = None
 
 
 class PostUpsert(PostBase):

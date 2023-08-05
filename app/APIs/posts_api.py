@@ -29,6 +29,7 @@ def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
         return posts
 
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -41,6 +42,7 @@ def get_latest_post(db: Session = Depends(get_db)):
         return post
 
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -61,6 +63,7 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
         print(err)
         raise err
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -75,11 +78,13 @@ def create_post(
 ):
     """Create a new post"""
     try:
+        post.owner_id = current_user.id
         db_post = posts_service.create_post(db, post)
 
         return db_post
 
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -106,6 +111,7 @@ def update_post(
         print(err)
         raise err
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)
 
 
@@ -132,4 +138,5 @@ def delete_post(
         print(err)
         raise err
     except Exception as err:
+        print(err)
         raise InternalServerErrorException(err)

@@ -1,5 +1,14 @@
 """ Posts Model """
-from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, func, text
+from sqlalchemy import (
+    TIMESTAMP,
+    Boolean,
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    func,
+    text,
+)
 
 from ..database.database import Base
 
@@ -14,4 +23,7 @@ class Post(Base):
     rating = Column(Integer, nullable=True)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
+    owner_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
