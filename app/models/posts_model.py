@@ -6,14 +6,15 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
-    func,
     text,
 )
 
-from ..database.database import Base
+from app.database.db_config import Base
 
 
 class Post(Base):
+    """Post Table Class"""
+
     __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, index=True)

@@ -1,119 +1,104 @@
 """ Users APIs """
 
-from typing import Union
 from fastapi import APIRouter, Depends, status
-from app.database.database import get_db
 from sqlalchemy.orm import Session
+from app.database.db_config import get_db_session
 from app.schemas.users_schemas import User, UserUpsert
-from app.schemas.token_schemas import TokenData
 from app.services import users_service
 from app.exceptions.http_exceptions import (
+    UnauthorizedException,
+    ForbiddenException,
     NotFoundException,
     InternalServerErrorException,
 )
-from app.authentication import oauth2
+from app.authentication import oauth2_service
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-""" GET """
+# * GET
 
 
 @router.get("", response_model=list[User])
-def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_users(
+    skip: int = 0, limit: int = 100, db_session: Session = Depends(get_db_session)
+):
     """Get Users"""
     try:
-        users = users_service.get_users(db, skip, limit)
-
+        users = users_service.get_users(db_session, skip, limit)
         return users
 
-    except Exception as err:
-        print(err)
-        raise InternalServerErrorException(err)
+    except InternalServerErrorException as exc_500:
+        print(exc_500)
+        raise exc_500
 
 
-@router.get("/{user_id}", response_model=Union[User, None])
-def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+@router.get("/{user_id}", response_model=User)
+def get_user_by_id(user_id: int, db_session: Session = Depends(get_db_session)):
     """Get User By Id"""
     try:
-        user = users_service.get_user_by_id(db, user_id)
-        if not user:
-            raise NotFoundException(f"User with id: {user_id} not found")
-
+        user = users_service.get_user_by_id(db_session, user_id)
         return user
 
-    except NotFoundException as err:
-        print(err)
-        raise err
-    except Exception as err:
-        print(err)
-        raise InternalServerErrorException(err)
+    except NotFoundException as exc_404:
+        print(exc_404)
+        raise exc_404
+    except InternalServerErrorException as exc_500:
+        print(exc_500)
+        raise exc_500
 
 
-# @router.get("/{user_email}", response_model=User)
-# def get_user_by_id(user_email: str, db: Session = Depends(get_db)):
-#     """Get User By Email"""
-#     try:
-#         user = users_service.get_user_by_email(db, user_email)
-#         if user == None:
-#             raise NotFoundException
-
-#         return user
-
-#     except NotFoundException as err:
-#         raise_not_found_exception(err)
-#     except Exception as err:
-#         raise_internal_server_error(err)
+# * POST
 
 
-""" POST """
-
-
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=Union[User, None])
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=User)
 def create_user(
     user: UserUpsert,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(oauth2.get_current_user),
+    db_session: Session = Depends(get_db_session),
+    current_user: User = Depends(oauth2_service.get_current_user),
 ):
     """Create a new User"""
     try:
-        db_user = users_service.create_user(db, user)
-
+        db_user = users_service.create_user(db_session, user, current_user)
         return db_user
 
-    except Exception as err:
-        print(err)
-        raise InternalServerErrorException(err)
+    except InternalServerErrorException as exc_500:
+        print(exc_500)
+        raise exc_500
 
 
-""" PUT """
+# * PUT
 
 
-@router.put("/{user_id}", response_model=Union[User, None])
+@router.put("/{user_id}", response_model=User)
 def update_user(
     user_id: int,
     user: UserUpsert,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(oauth2.get_current_user),
+    db_session: Session = Depends(get_db_session),
+    current_user: User = Depends(oauth2_service.get_current_user),
 ):
     """Update a User"""
     try:
-        db_user = users_service.get_user_by_id(db, user_id)
-        if not db_user:
-            raise NotFoundException(f"User with id: {user_id} not found")
-
-        updated_user = users_service.update_user(db, user_id, user)
+        updated_user = users_service.update_user(
+            db_session, user_id, user, current_user
+        )
         return updated_user
 
-    except NotFoundException as err:
-        print(err)
-        raise err
-    except Exception as err:
-        print(err)
-        raise InternalServerErrorException(err)
+    except UnauthorizedException as exc_401:
+        print(exc_401)
+        raise exc_401
+    except NotFoundException as exc_404:
+        print(exc_404)
+        raise exc_404
+    except ForbiddenException as exc_403:
+        print(exc_403)
+        raise exc_403
+    except InternalServerErrorException as exc_500:
+        print(exc_500)
+        raise exc_500
 
 
-""" DELETE """
+# * DELETE
 
 
 @router.delete(
@@ -121,20 +106,23 @@ def update_user(
 )
 def delete_user(
     user_id: int,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(oauth2.get_current_user),
+    db_session: Session = Depends(get_db_session),
+    current_user: User = Depends(oauth2_service.get_current_user),
 ):
     """Delete a User"""
     try:
-        deleted_user = users_service.delete_user(db, user_id)
-        if not deleted_user:
-            raise NotFoundException(f"User with id: {user_id} not found")
-
+        users_service.delete_user(db_session, user_id, current_user)
         return None
 
-    except NotFoundException as err:
-        print(err)
-        raise err
-    except Exception as err:
-        print(err)
-        raise InternalServerErrorException(err)
+    except UnauthorizedException as exc_401:
+        print(exc_401)
+        raise exc_401
+    except NotFoundException as exc_404:
+        print(exc_404)
+        raise exc_404
+    except ForbiddenException as exc_403:
+        print(exc_403)
+        raise exc_403
+    except InternalServerErrorException as exc_500:
+        print(exc_500)
+        raise exc_500

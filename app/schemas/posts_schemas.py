@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class PostBase(BaseModel):
-    """Class PostBase"""
+    """PostBase Class"""
 
     title: str = None
     content: str = None
@@ -14,19 +14,23 @@ class PostBase(BaseModel):
     published: Optional[bool] = False
     # 2 optional value, if not provided, default value will be None
     rating: Optional[int] = None
-    owner_id: Optional[int] = None
 
 
 class PostUpsert(PostBase):
-    pass
+    """PostUpsert Class"""
 
 
 class Post(PostBase):
+    """Post Class"""
+
     id: int
     created_at: datetime
+    owner_id: int
 
     # ? Pydantic's orm_mode will tell the Pydantic model to read the data even if it is not a dict
     # ? but an ORM model (or any other arbitrary object with attributes).
     class Config:
+        """SqlAlchemy Config Class"""
+
         #! orm_mode DEPRECATED
         from_attributes = True

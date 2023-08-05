@@ -31,3 +31,13 @@ class UnauthorizedException(HTTPException):
             detail=f"{detail}",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+class ForbiddenException(HTTPException):
+    """403 Forbidden Exception"""
+
+    def __init__(self, detail: str):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"{detail}",
+        )

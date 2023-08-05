@@ -1,10 +1,12 @@
 """ Users Model """
 from sqlalchemy import TIMESTAMP, Column, Integer, String, text
 
-from ..database.database import Base
+from app.database.db_config import Base
 
 
 class User(Base):
+    """User Table Class"""
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
