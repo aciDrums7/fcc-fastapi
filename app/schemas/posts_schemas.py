@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
+from .users_schemas import User
 
 
 class PostBase(BaseModel):
@@ -26,6 +27,7 @@ class Post(PostBase):
     id: int
     created_at: datetime
     owner_id: int
+    owner: User
 
     # ? Pydantic's orm_mode will tell the Pydantic model to read the data even if it is not a dict
     # ? but an ORM model (or any other arbitrary object with attributes).
