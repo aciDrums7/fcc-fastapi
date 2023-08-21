@@ -21,20 +21,27 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.get("", response_model=list[User])
 def get_users(
-    skip: int = 0, limit: int = 100, db_session: Session = Depends(get_db_session)
+    skip: int = 0,
+    limit: int = 100,
+    db_session: Session = Depends(get_db_session),
+    current_user: User = Depends(oauth2_service.get_current_user),
 ):
     """Get Users"""
     try:
         users = users_service.get_users(db_session, skip, limit)
         return users
 
-    except InternalServerErrorException as exc_500:
+    except Exception as exc_500:
         print(exc_500)
-        raise exc_500
+        raise InternalServerErrorException(exc_500) from exc_500
 
 
 @router.get("/{user_id}", response_model=User)
-def get_user_by_id(user_id: int, db_session: Session = Depends(get_db_session)):
+def get_user_by_id(
+    user_id: int,
+    db_session: Session = Depends(get_db_session),
+    current_user: User = Depends(oauth2_service.get_current_user),
+):
     """Get User By Id"""
     try:
         user = users_service.get_user_by_id(db_session, user_id)
@@ -43,9 +50,9 @@ def get_user_by_id(user_id: int, db_session: Session = Depends(get_db_session)):
     except NotFoundException as exc_404:
         print(exc_404)
         raise exc_404
-    except InternalServerErrorException as exc_500:
+    except Exception as exc_500:
         print(exc_500)
-        raise exc_500
+        raise InternalServerErrorException(exc_500) from exc_500
 
 
 # * POST
@@ -62,9 +69,9 @@ def create_user(
         db_user = users_service.create_user(db_session, user, current_user)
         return db_user
 
-    except InternalServerErrorException as exc_500:
+    except Exception as exc_500:
         print(exc_500)
-        raise exc_500
+        raise InternalServerErrorException(exc_500) from exc_500
 
 
 # * PUT
@@ -93,9 +100,9 @@ def update_user(
     except ForbiddenException as exc_403:
         print(exc_403)
         raise exc_403
-    except InternalServerErrorException as exc_500:
+    except Exception as exc_500:
         print(exc_500)
-        raise exc_500
+        raise InternalServerErrorException(exc_500) from exc_500
 
 
 # * DELETE
@@ -123,6 +130,6 @@ def delete_user(
     except ForbiddenException as exc_403:
         print(exc_403)
         raise exc_403
-    except InternalServerErrorException as exc_500:
+    except Exception as exc_500:
         print(exc_500)
-        raise exc_500
+        raise InternalServerErrorException(exc_500) from exc_500

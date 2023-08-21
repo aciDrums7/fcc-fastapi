@@ -15,7 +15,7 @@ from app.authentication import oauth2_service
 router = APIRouter(prefix="/login", tags=["Authentication"])
 
 
-@router.post("", response_model=Union[Token, None])
+@router.post("", response_model=Token)
 def login(
     user_credentials: OAuth2PasswordRequestForm = Depends(),
     db_session: Session = Depends(get_db_session),
@@ -26,9 +26,9 @@ def login(
 
         return token
 
-    except UnauthorizedException as exc_403:
-        print(exc_403)
-        raise exc_403
+    except UnauthorizedException as exc_401:
+        print(exc_401)
+        raise exc_401
     except InternalServerErrorException as exc_500:
         print(exc_500)
         raise exc_500
