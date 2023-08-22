@@ -1,4 +1,5 @@
 """ Posts APIs """
+from typing import Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.db_config import get_db_session
@@ -24,12 +25,13 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 def get_posts(
     skip: int = 0,
     limit: int = 100,
+    search: Optional[str] = "",
     db_session: Session = Depends(get_db_session),
     current_user: User = Depends(oauth2_service.get_current_user),
 ):
     """Get Posts"""
     try:
-        posts = posts_service.get_posts(db_session, skip, limit, current_user)
+        posts = posts_service.get_posts(db_session, skip, limit, search, current_user)
         return posts
 
     except Exception as exc_500:

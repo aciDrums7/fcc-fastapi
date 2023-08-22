@@ -1,4 +1,5 @@
 """ Posts Service """
+from typing import Optional
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from app.exceptions.http_exceptions import (
@@ -15,12 +16,16 @@ def get_posts(
     db_session: Session,
     skip: int,
     limit: int,
+    search: Optional[str],
     current_user: users_schemas.User,
 ) -> list[posts_schemas.Post]:
     """Get Posts"""
     return (
         db_session.query(posts_model.Post)
-        .filter(posts_model.Post.owner_id == current_user.id)
+        .filter(
+            posts_model.Post.owner_id == current_user.id,
+            posts_model.Post.title.contains(search),
+        )
         .order_by(posts_model.Post.id)
         .offset(skip)
         .limit(limit)
@@ -94,7 +99,7 @@ def update_post(
     current_user: users_schemas.User,
 ) -> posts_schemas.Post:
     """Update Post"""
-    db_post = get_post_by_id(db_session, post_id)
+    db_post = get_post_by_id(db_session, post_id, current_user)
 
     if not db_post:
         raise NotFoundException(f"Post with id: {post_id} not found")
@@ -121,7 +126,7 @@ def delete_post(
     db_session: Session, post_id: int, current_user: users_schemas.User
 ) -> None:
     """Delete a post"""
-    db_post = get_post_by_id(db_session, post_id)
+    db_post = get_post_by_id(db_session, post_id, current_user)
 
     if not db_post:
         raise NotFoundException(f"Post with id: {post_id} not found")
