@@ -10,7 +10,7 @@ from app.models.users_model import User
 from app.schemas.token_schemas import Token, TokenData
 from app.services import users_service
 from app.utils.password_utils import verify_password
-from app.utils.config import settings
+from app.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
