@@ -34,6 +34,16 @@ class NotFoundException(HTTPException):
         )
 
 
+class ConflictException(HTTPException):
+    """409: Conflict Exception"""
+
+    def __init__(self, detail: str):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"{detail}",
+        )
+
+
 # 500
 class InternalServerErrorException(HTTPException):
     """500: Internal Server Error Exception"""
