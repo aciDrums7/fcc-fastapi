@@ -14,7 +14,6 @@ from app.exceptions.http_exceptions import (
 )
 from app.authentication import oauth2_service
 
-
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
@@ -32,6 +31,7 @@ def get_posts(
     """Get Posts"""
     try:
         posts = posts_service.get_posts(db_session, skip, limit, search, current_user)
+
         return posts
 
     except Exception as exc_500:

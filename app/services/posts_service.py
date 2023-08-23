@@ -1,12 +1,12 @@
 """ Posts Service """
 from typing import Optional
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
 from app.exceptions.http_exceptions import (
     ForbiddenException,
     NotFoundException,
 )
-from app.models import posts_model
+from app.models import posts_model, votes_model
 from app.schemas import posts_schemas, users_schemas
 
 # * GET
@@ -20,17 +20,33 @@ def get_posts(
     current_user: users_schemas.User,
 ) -> list[posts_schemas.Post]:
     """Get Posts"""
-    return (
-        db_session.query(posts_model.Post)
+    db_posts = (
+        db_session.query(
+            posts_model.Post, func.count(votes_model.Vote.post_id).label("votes")
+        )
         .filter(
             posts_model.Post.owner_id == current_user.id,
             posts_model.Post.title.contains(search),
         )
+        .join(
+            votes_model.Vote,
+            posts_model.Post.id == votes_model.Vote.post_id,
+            isouter=True,
+        )
+        .group_by(posts_model.Post.id)
         .order_by(posts_model.Post.id)
-        .offset(skip)
         .limit(limit)
-        .all()
-    )
+        .offset(skip)
+    ).all()
+
+    posts = []
+
+    # TODO: why does this work?
+    for post, n_votes in db_posts:
+        post.n_votes = n_votes  # Assign n_votes to the n_votes property
+        posts.append(post)
+
+    return posts
 
 
 def get_post_by_id(
