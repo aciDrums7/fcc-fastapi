@@ -16,7 +16,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
 Base = declarative_base()
 # ? Porkaround to make SQLAlchemy create the "votes" table
 # ! Don't move this import, needs to stay after the Base var declaration!
-from app.models.votes_model import Vote
+from app.models.votes_model import VoteModel
 
 
 # Dependency

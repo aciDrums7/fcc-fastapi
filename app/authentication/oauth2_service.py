@@ -6,8 +6,9 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.database.db_config import get_db_session
 from app.exceptions.http_exceptions import UnauthorizedException
-from app.models.users_model import User
-from app.schemas.token_schemas import Token, TokenData
+from app.models.users_model import UserModel
+from app.schemas.users_schemas import UserOut
+from app.schemas.token_schemas import Token, TokenPayload
 from app.services import users_service
 from app.utils.password_utils import verify_password
 from app.config import settings
@@ -33,16 +34,16 @@ def create_access_token(payload: dict) -> str:
     return encoded_jwt
 
 
-def verify_jwt(token: str) -> TokenData:
-    """Verifies if the given token is valid"""
+def verify_jwt_and_return_payload(token: str) -> TokenPayload:
+    """Verifies if the given token is valid and returns its payload"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         user_id: str = payload.get("user_id")
         if not user_id:
             return None
-        token_data = TokenData(id=user_id)
+        token_payload = TokenPayload(user_id=user_id)
 
-        return token_data
+        return token_payload
     except JWTError as err:
         print(err)
         raise UnauthorizedException(err) from err
@@ -50,10 +51,10 @@ def verify_jwt(token: str) -> TokenData:
 
 def get_current_user(
     token: str = Depends(oauth2_scheme), db_session: Session = Depends(get_db_session)
-) -> User:
+) -> UserOut:
     """Get current logged in user"""
-    token_data = verify_jwt(token)
-    current_user = users_service.get_user_by_id(db_session, token_data.id)
+    token_payload = verify_jwt_and_return_payload(token)
+    current_user = users_service.get_user_by_id(db_session, token_payload.user_id)
     return current_user
 
 

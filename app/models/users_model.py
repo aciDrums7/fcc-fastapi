@@ -4,7 +4,7 @@ from sqlalchemy import TIMESTAMP, Column, Integer, String, text
 from app.database.db_config import Base
 
 
-class User(Base):
+class UserModel(Base):
     """User Table Class"""
 
     __tablename__ = "users"

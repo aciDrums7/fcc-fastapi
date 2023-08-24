@@ -1,87 +1,77 @@
 """ Posts Service """
 from typing import Optional
-from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
+from app.repositories import posts_repository
 from app.exceptions.http_exceptions import (
     ForbiddenException,
     NotFoundException,
 )
-from app.models import posts_model, votes_model
-from app.schemas import posts_schemas, users_schemas
+from app.models.posts_model import PostModel
+from app.schemas.posts_schemas import PostOut, PostUpsert
+from app.schemas.users_schemas import UserOut
 
 # * GET
 
 
-def get_posts(
+def get_posts_with_n_votes(
     db_session: Session,
     skip: int,
     limit: int,
     search: Optional[str],
-    current_user: users_schemas.User,
-) -> list[posts_schemas.Post]:
-    """Get Posts"""
-    db_posts = (
-        db_session.query(
-            posts_model.Post, func.count(votes_model.Vote.post_id).label("votes")
-        )
-        .filter(
-            posts_model.Post.owner_id == current_user.id,
-            posts_model.Post.title.contains(search),
-        )
-        .join(
-            votes_model.Vote,
-            posts_model.Post.id == votes_model.Vote.post_id,
-            isouter=True,
-        )
-        .group_by(posts_model.Post.id)
-        .order_by(posts_model.Post.id)
-        .limit(limit)
-        .offset(skip)
-    ).all()
+    current_user: UserOut,
+) -> list[PostOut]:
+    """Get Posts With Number Of Votes"""
+    db_posts = posts_repository.get_posts_with_n_votes(
+        db_session, skip, limit, search, current_user
+    )
 
     posts = []
 
-    # TODO: why does this work?
-    for post, n_votes in db_posts:
-        post.n_votes = n_votes  # Assign n_votes to the n_votes property
-        posts.append(post)
+    for post_model, n_votes in db_posts:
+        post_schema = PostOut.model_validate(post_model)
+        post_schema.n_votes = n_votes
+        posts.append(post_schema)
 
     return posts
 
 
-def get_post_by_id(
+def get_post_by_id_with_n_votes(
     db_session: Session,
     post_id: int,
-    current_user: users_schemas.User,
-) -> posts_schemas.Post:
-    """Get Post By Id"""
-    db_post = (
-        db_session.query(posts_model.Post)
-        .filter(posts_model.Post.id == post_id)
-        .first()
+    current_user: UserOut,
+) -> PostOut:
+    """Get Post By Id With Number Of Votes"""
+    post_model, n_votes = posts_repository.get_post_by_id_with_n_votes(
+        db_session, post_id, current_user
     )
-    if not db_post:
+
+    if not post_model:
         raise NotFoundException(f"Post with id: {post_id} not found")
-    if db_post.owner_id is not current_user.id:
+    if post_model.owner_id is not current_user.id:
         raise ForbiddenException("Not authorized to perform requested action")
-    return db_post
+
+    post_schema = PostOut.model_validate(post_model)
+    post_schema.n_votes = n_votes
+
+    return post_schema
 
 
-def get_latest_post(
+def get_latest_post_with_n_votes(
     db_session: Session,
-    current_user: users_schemas.User,
-) -> posts_schemas.Post:
-    """Get Latest Post"""
-    db_post = (
-        db_session.query(posts_model.Post)
-        .filter(posts_model.Post.owner_id == current_user.id)
-        .order_by(desc(posts_model.Post.id))
-        .first()
+    current_user: UserOut,
+) -> PostOut:
+    """Get Latest Post With Number Of Votes"""
+    post_model, n_votes = posts_repository.get_latest_post_with_n_votes(
+        db_session, current_user
     )
 
-    if not db_post:
-        raise NotFoundException("No posts found")
-    return db_post
+    if not post_model:
+        raise NotFoundException("Latest post not found")
+
+    post_schema = PostOut.model_validate(post_model)
+    post_schema.n_votes = n_votes
+
+    return post_schema
 
 
 # * POST
@@ -89,20 +79,20 @@ def get_latest_post(
 
 def create_post(
     db_session: Session,
-    post: posts_schemas.PostUpsert,
-    current_user: users_schemas.User,
-) -> posts_schemas.Post:
+    post: PostUpsert,
+    current_user: UserOut,
+) -> PostOut:
     """Create Post"""
     # ? Instead of passing each of the keyword arguments to models.Post
     # 1 we are passing the dict's key-value pairs as the keyword arguments (**kwargs)
     # 3 to the SQLAlchemy Post (models.Post)
-    db_post = posts_model.Post(owner_id=current_user.id, **post.model_dump())
+    db_post = PostModel(owner_id=current_user.id, **post.model_dump())
     db_session.add(db_post)
 
     db_session.commit()
     db_session.refresh(db_post)
 
-    return db_post
+    return PostOut.model_validate(db_post)
 
 
 # * PUT
@@ -111,38 +101,32 @@ def create_post(
 def update_post(
     db_session: Session,
     post_id: int,
-    post: posts_schemas.PostUpsert,
-    current_user: users_schemas.User,
-) -> posts_schemas.Post:
+    post_updated: PostUpsert,
+    current_user: UserOut,
+) -> PostOut:
     """Update Post"""
-    db_post = get_post_by_id(db_session, post_id, current_user)
+    db_post = posts_repository.get_post_by_id(db_session, post_id, current_user)
 
     if not db_post:
         raise NotFoundException(f"Post with id: {post_id} not found")
     if db_post.owner_id != current_user.id:
         raise ForbiddenException("Not authorized to perform requested action")
 
-    # ? The commented code doesn't work because we create a new instance of a Post object
-    # ? We need to modify the already existing instance, as did with the for loop below
-    # db_post = models.Post(**post.model_dump(exclude_unset=True))
-
-    for attr, value in post.model_dump(exclude_unset=True).items():
+    for attr, value in post_updated.model_dump(exclude_unset=True).items():
         setattr(db_post, attr, value)
 
     db_session.commit()
     db_session.refresh(db_post)
 
-    return db_post
+    return PostOut.model_validate(db_post)
 
 
 # * DELETE
 
 
-def delete_post(
-    db_session: Session, post_id: int, current_user: users_schemas.User
-) -> None:
+def delete_post(db_session: Session, post_id: int, current_user: UserOut) -> None:
     """Delete a post"""
-    db_post = get_post_by_id(db_session, post_id, current_user)
+    db_post = posts_repository.get_post_by_id(db_session, post_id, current_user)
 
     if not db_post:
         raise NotFoundException(f"Post with id: {post_id} not found")

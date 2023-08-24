@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.db_config import get_db_session
-from app.schemas.users_schemas import User, UserUpsert
+from app.schemas.users_schemas import UserOut, UserUpsert
 from app.services import users_service
 from app.exceptions.http_exceptions import (
     UnauthorizedException,
@@ -19,12 +19,12 @@ router = APIRouter(prefix="/users", tags=["Users"])
 # * GET
 
 
-@router.get("", response_model=list[User])
+@router.get("", response_model=list[UserOut])
 def get_users(
     skip: int = 0,
     limit: int = 100,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Users"""
     try:
@@ -36,11 +36,11 @@ def get_users(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-@router.get("/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=UserOut)
 def get_user_by_id(
     user_id: int,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get User By Id"""
     try:
@@ -55,14 +55,33 @@ def get_user_by_id(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
+@router.get("/email/{user_email}", response_model=UserOut)
+def get_user_by_email(
+    user_email: str,
+    db_session: Session = Depends(get_db_session),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
+):
+    """Get User By Email"""
+    try:
+        user = users_service.get_user_by_email(db_session, user_email)
+        return user
+
+    except NotFoundException as exc_404:
+        print(exc_404)
+        raise exc_404
+    except Exception as exc_500:
+        print(exc_500)
+        raise InternalServerErrorException(exc_500) from exc_500
+
+
 # * POST
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=User)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=UserOut)
 def create_user(
     user: UserUpsert,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Create a new User"""
     try:
@@ -77,12 +96,12 @@ def create_user(
 # * PUT
 
 
-@router.put("/{user_id}", response_model=User)
+@router.put("/{user_id}", response_model=UserOut)
 def update_user(
     user_id: int,
     user: UserUpsert,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Update a User"""
     try:
@@ -114,7 +133,7 @@ def update_user(
 def delete_user(
     user_id: int,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Delete a User"""
     try:

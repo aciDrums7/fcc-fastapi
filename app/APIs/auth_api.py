@@ -1,5 +1,4 @@
 """ Auth APIs """
-from typing import Union
 from fastapi import APIRouter, Depends
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session

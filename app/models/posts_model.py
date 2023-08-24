@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship
 from app.database.db_config import Base
 
 
-class Post(Base):
+class PostModel(Base):
     """Post Table Class"""
 
     __tablename__ = "posts"
@@ -28,4 +28,4 @@ class Post(Base):
     owner_id = Column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    owner = relationship("User")
+    owner = relationship("UserModel")

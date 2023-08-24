@@ -1,0 +1,3 @@
+[pylint.messages control]
+# Disable not-callable warning
+disable=E1102

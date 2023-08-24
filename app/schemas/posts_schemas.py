@@ -2,12 +2,14 @@
 # ? pydantic is useful for data validation (request body/params) + schema definition
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
-from .users_schemas import User
+from pydantic import BaseModel, ConfigDict
+from .users_schemas import UserOut
 
 
 class PostBase(BaseModel):
-    """PostBase Class"""
+    """PostBase Schema Class"""
+
+    model_config = ConfigDict(from_attributes=True)
 
     title: str = None
     content: str = None
@@ -18,22 +20,15 @@ class PostBase(BaseModel):
 
 
 class PostUpsert(PostBase):
-    """PostUpsert Class"""
+    """PostUpsert Schema Class"""
 
 
-class Post(PostBase):
-    """Post Class"""
+class PostOut(PostBase):
+    """PostOut Schema Class"""
 
     id: int
     created_at: datetime
     # owner_id: int
-    owner: User
-    n_votes: int
-
-    # ? Pydantic's orm_mode will tell the Pydantic model to read the data even if it is not a dict
-    # ? but an ORM model (or any other arbitrary object with attributes).
-    class Config:
-        """SqlAlchemy Config Class"""
-
-        #! orm_mode DEPRECATED
-        from_attributes = True
+    owner: UserOut
+    # ? Needed to be excluded when converted to SqlAlchemy PostModel
+    n_votes: int = 0

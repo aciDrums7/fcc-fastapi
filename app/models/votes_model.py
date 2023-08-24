@@ -7,7 +7,7 @@ from sqlalchemy import (
 from app.database.db_config import Base
 
 
-class Vote(Base):
+class VoteModel(Base):
     """Votes Table Class"""
 
     __tablename__ = "votes"

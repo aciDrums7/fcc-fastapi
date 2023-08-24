@@ -3,8 +3,8 @@ from typing import Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.db_config import get_db_session
-from app.schemas.users_schemas import User
-from app.schemas.posts_schemas import Post, PostUpsert
+from app.schemas.users_schemas import UserOut
+from app.schemas.posts_schemas import PostOut, PostUpsert
 from app.services import posts_service
 from app.exceptions.http_exceptions import (
     UnauthorizedException,
@@ -20,17 +20,19 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 # * GET
 
 
-@router.get("", response_model=list[Post])
+@router.get("", response_model=list[PostOut])
 def get_posts(
     skip: int = 0,
     limit: int = 100,
-    search: Optional[str] = "",
+    search: str = "",
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Posts"""
     try:
-        posts = posts_service.get_posts(db_session, skip, limit, search, current_user)
+        posts = posts_service.get_posts_with_n_votes(
+            db_session, skip, limit, search, current_user
+        )
 
         return posts
 
@@ -39,14 +41,14 @@ def get_posts(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-@router.get("/latest", response_model=Post)
+@router.get("/latest", response_model=PostOut)
 def get_latest_post(
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Latest Post"""
     try:
-        post = posts_service.get_latest_post(db_session, current_user)
+        post = posts_service.get_latest_post_with_n_votes(db_session, current_user)
         return post
 
     except NotFoundException as exc_404:
@@ -60,15 +62,17 @@ def get_latest_post(
 #! If you change the order of this 2 GET requests ⬆⬇, you'll get an error!
 
 
-@router.get("/{post_id}", response_model=Post)
+@router.get("/{post_id}", response_model=PostOut)
 def get_post(
     post_id: int,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Post"""
     try:
-        post = posts_service.get_post_by_id(db_session, post_id, current_user)
+        post = posts_service.get_post_by_id_with_n_votes(
+            db_session, post_id, current_user
+        )
         return post
 
     except ForbiddenException as exc_403:
@@ -85,11 +89,11 @@ def get_post(
 # * POST
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=Post)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=PostOut)
 def create_post(
     post: PostUpsert,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Create a new post"""
     try:
@@ -104,12 +108,12 @@ def create_post(
 # * PUT
 
 
-@router.put("/{post_id}", response_model=Post)
+@router.put("/{post_id}", response_model=PostOut)
 def update_post(
     post_id: int,
     post: PostUpsert,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Update a Post"""
     try:
@@ -141,7 +145,7 @@ def update_post(
 def delete_post(
     post_id: int,
     db_session: Session = Depends(get_db_session),
-    current_user: User = Depends(oauth2_service.get_current_user),
+    current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Delete a post"""
     try:
