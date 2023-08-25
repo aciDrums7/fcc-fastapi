@@ -1,6 +1,7 @@
 """ Users Schemas """
 
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
@@ -11,6 +12,7 @@ class UserBase(BaseModel):
 
     email: EmailStr
     password: str
+    phone_number: Optional[str] = None
 
 
 class UserUpsert(UserBase):
