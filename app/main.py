@@ -9,7 +9,8 @@ from .APIs.votes_api import router as votes_router
 
 load_dotenv(verbose=True)
 
-Base.metadata.create_all(bind=Engine)
+# ? Don't need this once Alembic is implemented
+# Base.metadata.create_all(bind=Engine)
 
 app = FastAPI()
 
