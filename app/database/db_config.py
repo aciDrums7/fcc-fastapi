@@ -5,7 +5,12 @@ from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
 
-DB_URL = f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOSTNAME}:{settings.DB_PORT}/{settings.DB_NAME}"
+DB_URL = (
+    f"postgresql://"
+    f"{settings.DB_USERNAME}:{settings.DB_PASSWORD}@"
+    f"{settings.DB_HOSTNAME}:{settings.DB_PORT}/"
+    f"{settings.DB_NAME}"
+)
 
 Engine = create_engine(
     DB_URL,
@@ -16,7 +21,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
 Base = declarative_base()
 # ? Porkaround to make SQLAlchemy create the "votes" table
 # ! Don't move this import, needs to stay after the Base var declaration!
-from app.models.votes_model import VoteModel
+# from app.models.votes_model import VoteModel
 
 
 # Dependency

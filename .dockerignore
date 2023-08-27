@@ -1,0 +1,35 @@
+# Exclude common development files and directories
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.log
+*.env
+
+# Exclude development dependencies
+venv/
+env/
+.virtualenv/
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Exclude version control system files
+.git
+.gitignore
+
+# Exclude Docker-related files
+Dockerfile
+docker-compose.yml
+
+# Exclude any other temporary or unnecessary files
+*.tmp
+*.bak
+*.swp
+
+# Exclude Fly.io config files
+fly.toml
