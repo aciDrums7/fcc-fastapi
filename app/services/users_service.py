@@ -46,21 +46,21 @@ def get_user_by_email(db_session: Session, user_email: str) -> UserOut:
 def create_user(
     db_session: Session,
     user: UserUpsert,
-    current_user: UserOut,
+    # current_user: UserOut,
 ) -> UserOut:
     """Create User"""
     # TODO: if current_user.role == 'ADMIN'
-    if current_user:
-        # 1 hash the password
-        user.password = hash_password(user.password)
+    # if current_user:
+    # 1 hash the password
+    user.password = hash_password(user.password)
 
-        # 2 persist the user in the database
-        db_user = UserModel(**user.model_dump())
-        db_session.add(db_user)
-        db_session.commit()
-        db_session.refresh(db_user)
+    # 2 persist the user in the database
+    db_user = UserModel(**user.model_dump())
+    db_session.add(db_user)
+    db_session.commit()
+    db_session.refresh(db_user)
 
-        return UserOut.model_validate(db_user)
+    return UserOut.model_validate(db_user)
 
 
 # * PUT

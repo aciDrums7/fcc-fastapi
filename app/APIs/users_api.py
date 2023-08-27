@@ -24,7 +24,7 @@ def get_users(
     skip: int = 0,
     limit: int = 100,
     db_session: Session = Depends(get_db_session),
-    current_user: UserOut = Depends(oauth2_service.get_current_user),
+    # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Users"""
     try:
@@ -40,7 +40,7 @@ def get_users(
 def get_user_by_id(
     user_id: int,
     db_session: Session = Depends(get_db_session),
-    current_user: UserOut = Depends(oauth2_service.get_current_user),
+    # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get User By Id"""
     try:
@@ -59,7 +59,7 @@ def get_user_by_id(
 def get_user_by_email(
     user_email: str,
     db_session: Session = Depends(get_db_session),
-    current_user: UserOut = Depends(oauth2_service.get_current_user),
+    # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get User By Email"""
     try:
@@ -81,11 +81,11 @@ def get_user_by_email(
 def create_user(
     user: UserUpsert,
     db_session: Session = Depends(get_db_session),
-    current_user: UserOut = Depends(oauth2_service.get_current_user),
+    # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Create a new User"""
     try:
-        db_user = users_service.create_user(db_session, user, current_user)
+        db_user = users_service.create_user(db_session, user)
         return db_user
 
     except Exception as exc_500:
