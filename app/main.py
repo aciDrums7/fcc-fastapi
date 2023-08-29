@@ -2,7 +2,8 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .database.db_config import Base, Engine
+
+# from .database.db_config import Base, Engine
 from .APIs.auth_api import router as auth_router
 from .APIs.users_api import router as users_router
 from .APIs.posts_api import router as posts_router

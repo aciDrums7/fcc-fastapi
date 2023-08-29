@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  fastapi:
+    build: ./
+    container_name: fastapi
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - 8000:8000
+    # env_file:
+    #   - ./.env
+    environment:
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOSTNAME=postgres
+      - DB_PORT=5432
+      - DB_NAME=fastapi
+      - SECRET_KEY=a3b02165d4a2c1909714d816c1f1c9df7e17ebfc274cc7dd4e43cb7b7ee4bd28
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=21
+    volumes:
+    # ? Bind mount -> needed to sync the current work dir with the one in the container
+    # ? So that when we change some code, it reflects in the container too
+      - ./:/usr/src/app:ro
+    command: "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fastapi
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+    postgres:
