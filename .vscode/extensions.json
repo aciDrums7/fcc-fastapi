@@ -16,6 +16,7 @@
         "ms-python.pylint",
         "ms-python.python",
         "tabnine.tabnine-vscode",
-        "jeff-hykin.better-dockerfile-syntax"
+        "jeff-hykin.better-dockerfile-syntax",
+        "ms-azuretools.vscode-docker"
     ]
 }
