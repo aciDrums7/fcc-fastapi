@@ -2,7 +2,8 @@ version: "3"
 
 services:
   fastapi:
-    build: ./
+    # build: ./
+    image: fcc-fastapi
     container_name: fastapi
     restart: always
     depends_on:
