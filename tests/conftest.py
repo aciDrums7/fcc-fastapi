@@ -1,8 +1,9 @@
 import pytest
-from pytest_alembic.config import Config
-from pytest_mock_resources import create_postgres_fixture
-from alembic import command
-
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.database.db_config import get_db, Base
+from app.main import app
 from app.config import settings
 
 DB_TEST_URL = (
@@ -12,21 +13,33 @@ DB_TEST_URL = (
     f"{settings.DB_TEST_NAME}"
 )
 
-
-@pytest.fixture
-def alembic_config():
-    """Override this fixture to configure the exact alembic context setup required."""
-    return Config(
-        config_options={"script_location": "alembic", "sqlalchemy_url": DB_TEST_URL}
-    )
+Engine = create_engine(
+    DB_TEST_URL,
+    # connect_args={"check_same_thread": False}
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
 
 
 @pytest.fixture
-def alembic_engine():
-    """Override this fixture to provide pytest-alembic powered tests with a database handle."""
-    return create_postgres_fixture()
+def session():
+    Base.metadata.drop_all(bind=Engine)
+    Base.metadata.create_all(bind=Engine)
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture
-def create_drop_test_db(alembic_config):
-    command.upgrade(alembic_config, "head")
+def client(session):
+    def override_get_db():
+        try:
+            yield session
+        finally:
+            session.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    # 1 yield -> run code before running tests
+    yield TestClient(app)
+    # 2 yield -> run code after tests finish
