@@ -25,7 +25,7 @@ Base = declarative_base()
 
 
 # Dependency
-def get_db_session():
+def get_db():
     """Return database session"""
     db = SessionLocal()
     try:

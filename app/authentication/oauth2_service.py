@@ -4,7 +4,7 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from app.database.db_config import get_db_session
+from app.database.db_config import get_db
 from app.exceptions.http_exceptions import UnauthorizedException
 from app.models.users_model import UserModel
 from app.schemas.users_schemas import UserOut
@@ -50,7 +50,7 @@ def verify_jwt_and_return_payload(token: str) -> TokenPayload:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), db_session: Session = Depends(get_db_session)
+    token: str = Depends(oauth2_scheme), db_session: Session = Depends(get_db)
 ) -> UserOut:
     """Get current logged in user"""
     token_payload = verify_jwt_and_return_payload(token)

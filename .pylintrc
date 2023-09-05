@@ -5,10 +5,11 @@
 confidence=
 
 disable=
+    ; W0611, ; unused-import
     E1102, ; not-callable
     C0301, ; line-too-long
     C0413, ; wrong-import-position 
-    ; W0611, ; unused-import
     E1101, ; no-member
-    C0111, ;missing-docstring,
+    C0111, ; missing-docstring,
     W0012, ; unkown-option-value
+    C0103, ; invalid-name

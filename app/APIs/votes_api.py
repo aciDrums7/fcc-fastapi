@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
-from app.database.db_config import get_db_session
+from app.database.db_config import get_db
 from app.schemas.users_schemas import UserOut
 from app.schemas.votes_schemas import VotePayload
 from app.services import votes_service
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/votes", tags=["Votes"])
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=None)
 async def create_or_delete_vote(
     vote: VotePayload,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Create Vote"""

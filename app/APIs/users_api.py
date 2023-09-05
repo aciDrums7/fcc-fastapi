@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from app.database.db_config import get_db_session
+from app.database.db_config import get_db
 from app.schemas.users_schemas import UserOut, UserUpsert
 from app.services import users_service
 from app.exceptions.http_exceptions import (
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def get_users(
     skip: int = 0,
     limit: int = 100,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Users"""
@@ -39,7 +39,7 @@ def get_users(
 @router.get("/{user_id}", response_model=UserOut)
 def get_user_by_id(
     user_id: int,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get User By Id"""
@@ -58,7 +58,7 @@ def get_user_by_id(
 @router.get("/email/{user_email}", response_model=UserOut)
 def get_user_by_email(
     user_email: str,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get User By Email"""
@@ -80,7 +80,7 @@ def get_user_by_email(
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=UserOut)
 def create_user(
     user: UserUpsert,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     # current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Create a new User"""
@@ -100,7 +100,7 @@ def create_user(
 def update_user(
     user_id: int,
     user: UserUpsert,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Update a User"""
@@ -132,7 +132,7 @@ def update_user(
 )
 def delete_user(
     user_id: int,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Delete a User"""

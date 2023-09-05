@@ -2,7 +2,7 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from app.database.db_config import get_db_session
+from app.database.db_config import get_db
 from app.schemas.users_schemas import UserOut
 from app.schemas.posts_schemas import PostOut, PostUpsert
 from app.services import posts_service
@@ -25,7 +25,7 @@ def get_posts(
     skip: int = 0,
     limit: int = 100,
     search: str = "",
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Posts"""
@@ -43,7 +43,7 @@ def get_posts(
 
 @router.get("/latest", response_model=PostOut)
 def get_latest_post(
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Latest Post"""
@@ -65,7 +65,7 @@ def get_latest_post(
 @router.get("/{post_id}", response_model=PostOut)
 def get_post(
     post_id: int,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Get Post"""
@@ -92,7 +92,7 @@ def get_post(
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=PostOut)
 def create_post(
     post: PostUpsert,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Create a new post"""
@@ -112,7 +112,7 @@ def create_post(
 def update_post(
     post_id: int,
     post: PostUpsert,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Update a Post"""
@@ -144,7 +144,7 @@ def update_post(
 )
 def delete_post(
     post_id: int,
-    db_session: Session = Depends(get_db_session),
+    db_session: Session = Depends(get_db),
     current_user: UserOut = Depends(oauth2_service.get_current_user),
 ):
     """Delete a post"""
