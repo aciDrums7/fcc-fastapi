@@ -19,6 +19,9 @@ Engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
 
+test_email = "test@email.com"
+test_password = "testPassword1"
+
 
 @pytest.fixture(name="session")
 def session():
@@ -44,3 +47,13 @@ def client(session):
     # 1 yield -> run code before running tests
     yield TestClient(app)
     # 2 yield -> run code after tests finish
+
+
+@pytest.fixture
+def test_user(client):
+    new_user_data = {"email": test_email, "password": test_password}
+    res = client.post("/users", json=new_user_data)
+    assert res.status_code == 201
+    new_user = res.json()
+    new_user["plain_password"] = new_user_data["password"]
+    return new_user

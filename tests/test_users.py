@@ -1,22 +1,8 @@
-import pytest
-from tests.conftest import client
+from tests.conftest import test_email, test_password
 from app.authentication import oauth2_service
 from app.schemas.token_schemas import Token
 from app.schemas.users_schemas import UserOut
 from app.utils.password_utils import verify_password
-
-test_email = "test@email.com"
-test_password = "testpassword"
-
-
-@pytest.fixture
-def test_user(client):
-    new_user_data = {"email": test_email, "password": test_password}
-    res = client.post("/users", json=new_user_data)
-    assert res.status_code == 201
-    new_user = res.json()
-    new_user["plain_password"] = new_user_data["password"]
-    return new_user
 
 
 def test_hello_world(client):
@@ -46,6 +32,16 @@ def test_login_user(client, test_user):
     print(token_payload)
 
     assert token_payload is not None
-    assert test_user['id'] == token_payload.user_id
+    assert test_user["id"] == token_payload.user_id
     assert new_token.token_type == "Bearer"
     assert res.status_code == 200
+
+
+def test_unauthorized_login(client, test_user):
+    res = client.post(
+        "/login",
+        data={"username": test_user["email"], "password": "wrongpassword"},
+    )
+    print(res.json())
+    assert res.status_code == 401
+    assert res.json().get("detail") == "Invalid user credentials"
