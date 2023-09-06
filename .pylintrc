@@ -6,6 +6,7 @@ confidence=
 
 disable=
     ; W0611, ; unused-import
+    ; W0621, ; redefined-outer-name
     E1102, ; not-callable
     C0301, ; line-too-long
     C0413, ; wrong-import-position 
@@ -13,3 +14,6 @@ disable=
     C0111, ; missing-docstring,
     W0012, ; unkown-option-value
     C0103, ; invalid-name
+
+[MASTER]
+load-plugins=pylint_pytest

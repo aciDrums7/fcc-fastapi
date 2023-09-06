@@ -6,7 +6,6 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.database.db_config import get_db
 from app.exceptions.http_exceptions import UnauthorizedException, NotFoundException
-from app.models.users_model import UserModel
 from app.schemas.users_schemas import UserOut
 from app.schemas.token_schemas import Token, TokenPayload
 from app.services import users_service
@@ -67,7 +66,7 @@ def login_user(
         db_user = users_service.get_user_by_email(db_session, user_credentials.username)
     except NotFoundException as exc_404:
         print(exc_404)
-        raise UnauthorizedException("Invalid user credentials")
+        raise UnauthorizedException("Invalid user credentials") from exc_404
 
     is_password_valid = verify_password(user_credentials.password, db_user.password)
     if not is_password_valid:
