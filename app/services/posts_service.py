@@ -41,19 +41,19 @@ def get_post_by_id_with_n_votes(
     current_user: UserOut,
 ) -> PostOut:
     """Get Post By Id With Number Of Votes"""
-    post_model, n_votes = posts_repository.get_post_by_id_with_n_votes(
-        db_session, post_id, current_user
-    )
+    try:
+        post_model, n_votes = posts_repository.get_post_by_id_with_n_votes(
+            db_session, post_id, current_user
+        )
+        if post_model.owner_id is not current_user.id:
+            raise ForbiddenException("Not authorized to perform requested action")
 
-    if not post_model:
-        raise NotFoundException(f"Post with id: {post_id} not found")
-    if post_model.owner_id is not current_user.id:
-        raise ForbiddenException("Not authorized to perform requested action")
+        post_schema = PostOut.model_validate(post_model)
+        post_schema.n_votes = n_votes
 
-    post_schema = PostOut.model_validate(post_model)
-    post_schema.n_votes = n_votes
-
-    return post_schema
+        return post_schema
+    except TypeError as exc_404:
+        raise NotFoundException(f"Post with id: {post_id} not found") from exc_404
 
 
 def get_latest_post_with_n_votes(

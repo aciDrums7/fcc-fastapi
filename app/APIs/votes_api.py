@@ -15,7 +15,7 @@ from app.authentication import oauth2_service
 
 router = APIRouter(prefix="/votes", tags=["Votes"])
 
-# * POST
+# 5 POST
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=None)

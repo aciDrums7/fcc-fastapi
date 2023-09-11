@@ -16,7 +16,7 @@ from app.authentication import oauth2_service
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-# * GET
+# 5 GET
 
 
 @router.get("", response_model=list[UserOut])
@@ -74,7 +74,7 @@ def get_user_by_email(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-# * POST
+# 5 POST
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=UserOut)
@@ -93,7 +93,7 @@ def create_user(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-# * PUT
+# 5 PUT
 
 
 @router.put("/{user_id}", response_model=UserOut)
@@ -124,7 +124,7 @@ def update_user(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-# * DELETE
+# 5 DELETE
 
 
 @router.delete(

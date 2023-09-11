@@ -1,5 +1,4 @@
 """ Posts APIs """
-from typing import Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.db_config import get_db
@@ -17,7 +16,7 @@ from app.authentication import oauth2_service
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
-# * GET
+# 5 GET
 
 
 @router.get("", response_model=list[PostOut])
@@ -86,7 +85,7 @@ def get_post(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-# * POST
+# 5 POST
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=PostOut)
@@ -105,7 +104,7 @@ def create_post(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-# * PUT
+# 5 PUT
 
 
 @router.put("/{post_id}", response_model=PostOut)
@@ -136,7 +135,7 @@ def update_post(
         raise InternalServerErrorException(exc_500) from exc_500
 
 
-# * DELETE
+# 5 DELETE
 
 
 @router.delete(

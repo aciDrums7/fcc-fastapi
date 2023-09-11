@@ -5,11 +5,17 @@ from app.schemas.users_schemas import UserOut
 from app.utils.password_utils import verify_password
 
 
+# 5 GET
+
+
 def test_hello_world(client):
     res = client.get("/")
     print(res.json())
     assert res.json() == "Hello World!"
     assert res.status_code == 200
+
+
+# 5 POST
 
 
 def test_create_user(client):

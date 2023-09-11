@@ -42,7 +42,6 @@ def get_posts_with_n_votes(
     db_posts = (
         db_session.query(PostModel, func.count(VoteModel.post_id).label("n_votes"))
         .filter(
-            PostModel.owner_id == current_user.id,
             PostModel.title.contains(search),
         )
         .join(
