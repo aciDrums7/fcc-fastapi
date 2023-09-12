@@ -36,7 +36,6 @@ def get_posts_with_n_votes(
     skip: int,
     limit: int,
     search: Optional[str],
-    current_user: UserOut,
 ) -> List[Tuple[PostModel, int]]:
     """Get Posts With Number Of Votes"""
     db_posts = (
@@ -61,7 +60,6 @@ def get_posts_with_n_votes(
 def get_post_by_id(
     db_session: Session,
     post_id: int,
-    current_user: UserOut,
 ) -> PostModel | None:
     """Get Post By Id"""
     db_post = db_session.query(PostModel).filter(PostModel.id == post_id).first()
@@ -72,7 +70,6 @@ def get_post_by_id(
 def get_post_by_id_with_n_votes(
     db_session: Session,
     post_id: int,
-    current_user: UserOut,
 ) -> Tuple[PostModel, int] | None:
     """Get Post By Id With Number Of Votes"""
     db_post = (
@@ -92,27 +89,19 @@ def get_post_by_id_with_n_votes(
 
 def get_latest_post(
     db_session: Session,
-    current_user: UserOut,
 ) -> PostModel | None:
     """Get Latest Post"""
-    db_post = (
-        db_session.query(PostModel)
-        .filter(PostModel.owner_id == current_user.id)
-        .order_by(desc(PostModel.id))
-        .first()
-    )
+    db_post = db_session.query(PostModel).order_by(desc(PostModel.id)).first()
 
     return db_post
 
 
 def get_latest_post_with_n_votes(
     db_session: Session,
-    current_user: UserOut,
 ) -> Tuple[PostModel, int] | None:
     """Get Latest Post"""
     db_post = (
         db_session.query(PostModel, func.count(VoteModel.post_id).label("n_votes"))
-        .filter(PostModel.owner_id == current_user.id)
         .join(
             VoteModel,
             PostModel.id == VoteModel.post_id,

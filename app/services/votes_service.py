@@ -16,11 +16,11 @@ def create_or_delete_vote(
     vote: VotePayload,
     current_user: UserOut,
 ) -> VoteOut | None:
-    """Create Vote"""
+    """Create or Delete Vote"""
     # ? Check if post associated to vote does exist
-    posts_service.get_post_by_id_with_n_votes(db_session, vote.post_id, current_user)
+    posts_service.get_post_by_id_with_n_votes(db_session, vote.post_id)
 
-    db_vote = votes_repository.get_vote(db_session, vote, current_user)
+    db_vote = votes_repository.get_vote(db_session, vote)
 
     if vote.dir == 1:
         if db_vote:
@@ -41,7 +41,6 @@ def create_or_delete_vote(
                 f"Vote with user_id: {current_user.id} and post_id: {vote.post_id} not found"
             )
         else:
-            # vote_query.delete(synchronize_session=False)
             db_session.delete(db_vote)
             db_session.commit()
             return None

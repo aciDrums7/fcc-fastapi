@@ -18,12 +18,9 @@ def get_posts_with_n_votes(
     skip: int,
     limit: int,
     search: Optional[str],
-    current_user: UserOut,
 ) -> list[PostOut]:
     """Get Posts With Number Of Votes"""
-    db_posts = posts_repository.get_posts_with_n_votes(
-        db_session, skip, limit, search, current_user
-    )
+    db_posts = posts_repository.get_posts_with_n_votes(db_session, skip, limit, search)
 
     posts = []
 
@@ -38,15 +35,12 @@ def get_posts_with_n_votes(
 def get_post_by_id_with_n_votes(
     db_session: Session,
     post_id: int,
-    current_user: UserOut,
 ) -> PostOut:
     """Get Post By Id With Number Of Votes"""
     try:
         post_model, n_votes = posts_repository.get_post_by_id_with_n_votes(
-            db_session, post_id, current_user
+            db_session, post_id
         )
-        if post_model.owner_id is not current_user.id:
-            raise ForbiddenException("Not authorized to perform requested action")
 
         post_schema = PostOut.model_validate(post_model)
         post_schema.n_votes = n_votes
@@ -58,12 +52,9 @@ def get_post_by_id_with_n_votes(
 
 def get_latest_post_with_n_votes(
     db_session: Session,
-    current_user: UserOut,
 ) -> PostOut:
     """Get Latest Post With Number Of Votes"""
-    post_model, n_votes = posts_repository.get_latest_post_with_n_votes(
-        db_session, current_user
-    )
+    post_model, n_votes = posts_repository.get_latest_post_with_n_votes(db_session)
 
     if not post_model:
         raise NotFoundException("Latest post not found")
@@ -105,7 +96,7 @@ def update_post(
     current_user: UserOut,
 ) -> PostOut:
     """Update Post"""
-    db_post = posts_repository.get_post_by_id(db_session, post_id, current_user)
+    db_post = posts_repository.get_post_by_id(db_session, post_id)
 
     if not db_post:
         raise NotFoundException(f"Post with id: {post_id} not found")
@@ -126,7 +117,7 @@ def update_post(
 
 def delete_post(db_session: Session, post_id: int, current_user: UserOut) -> None:
     """Delete a post"""
-    db_post = posts_repository.get_post_by_id(db_session, post_id, current_user)
+    db_post = posts_repository.get_post_by_id(db_session, post_id)
 
     if not db_post:
         raise NotFoundException(f"Post with id: {post_id} not found")

@@ -29,9 +29,7 @@ def get_posts(
 ):
     """Get Posts"""
     try:
-        posts = posts_service.get_posts_with_n_votes(
-            db_session, skip, limit, search, current_user
-        )
+        posts = posts_service.get_posts_with_n_votes(db_session, skip, limit, search)
 
         return posts
 
@@ -47,7 +45,7 @@ def get_latest_post(
 ):
     """Get Latest Post"""
     try:
-        post = posts_service.get_latest_post_with_n_votes(db_session, current_user)
+        post = posts_service.get_latest_post_with_n_votes(db_session)
         return post
 
     except NotFoundException as exc_404:
@@ -69,9 +67,7 @@ def get_post(
 ):
     """Get Post"""
     try:
-        post = posts_service.get_post_by_id_with_n_votes(
-            db_session, post_id, current_user
-        )
+        post = posts_service.get_post_by_id_with_n_votes(db_session, post_id)
         return post
 
     except ForbiddenException as exc_403:

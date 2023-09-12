@@ -128,7 +128,7 @@ def test_update_non_existing_post(authorized_client, test_user, test_posts):
         "content": "updated content",
     }
 
-    res = authorized_client.put(f"/posts/666", json=payload)
+    res = authorized_client.put("/posts/666", json=payload)
     print(res.json())
 
     assert res.status_code == 404
