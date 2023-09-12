@@ -14,6 +14,7 @@ disable=
     C0111, ; missing-docstring,
     W0012, ; unkown-option-value
     C0103, ; invalid-name
+    W0613, ; unused-argument
 
 [MASTER]
 load-plugins=pylint_pytest
