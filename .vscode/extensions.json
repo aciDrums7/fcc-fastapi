@@ -18,6 +18,7 @@
         "tabnine.tabnine-vscode",
         "jeff-hykin.better-dockerfile-syntax",
         "ms-azuretools.vscode-docker",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "redhat.vscode-yaml"
     ]
 }
