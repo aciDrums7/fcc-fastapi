@@ -1,19 +1,22 @@
 name: Build and Deploy fcc FastAPI Project
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push, pull_request]
-env:
-  DB_USERNAME: postgres
-  DB_PASSWORD: postgres
-  DB_HOSTNAME: localhost
-  DB_PORT: 5432
-  DB_NAME: fastapi
-  DB_TEST_NAME: fastapi_test
-  SECRET_KEY: a3b02165d4a2c1909714d816c1f1c9df7e17ebfc274cc7dd4e43cb7b7ee4bd28
-  ALGORITHM: HS256
-  ACCESS_TOKEN_EXPIRE_MINUTES: 21
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: TEST
+    env:
+      DB_USERNAME: ${{secrets.DB_USERNAME}}
+      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+      DB_HOSTNAME: ${{secrets.DB_HOSTNAME}}
+      DB_PORT: ${{secrets.DB_PORT}}
+      DB_NAME: ${{secrets.DB_NAME}}
+      DB_TEST_NAME: ${{secrets.DB_TEST_NAME}}
+      SECRET_KEY: ${{secrets.SECRET_KEY}}
+      ALGORITHM: ${{secrets.ALGORITHM}}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.DB_USERNAME}}
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
