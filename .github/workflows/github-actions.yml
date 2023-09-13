@@ -16,7 +16,7 @@ jobs:
       DB_TEST_NAME: ${{secrets.DB_TEST_NAME}}
       SECRET_KEY: ${{secrets.SECRET_KEY}}
       ALGORITHM: ${{secrets.ALGORITHM}}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.DB_USERNAME}}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
