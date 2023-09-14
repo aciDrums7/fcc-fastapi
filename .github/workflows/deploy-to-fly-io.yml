@@ -1,4 +1,3 @@
-#2 Continuous Delivery
 name: Deploy to Fly.io
 on:
   workflow_run:

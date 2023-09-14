@@ -11,13 +11,16 @@
             "module": "uvicorn",
             "args": [
                 "app.main:app",
-                "--reload"
+                "--reload",
             ],
             "jinja": true,
             "justMyCode": true,
-            "pythonArgs": [
-                "-Xfrozen_modules=off"
-            ],
+            // "pythonArgs": [
+            //     "-Xfrozen_modules=off"
+            // ],
+            "env": {
+                "PYDEVD_DISABLE_FILE_VALIDATION": "1"
+            }
         },
     ]
 }
