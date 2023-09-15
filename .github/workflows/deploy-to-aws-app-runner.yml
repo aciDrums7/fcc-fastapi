@@ -42,9 +42,9 @@ jobs:
         id: deploy-apprunner
         uses: awslabs/amazon-app-runner-deploy@main
         with:
-          service: app-runner-git-deploy-service
+          service: app-runner-image-deploy-service
           image: ${{ steps.build-image.outputs.image }}
-          access-role-arn: ${{ secrets.ROLE_ARN }}
+          access-role-arn: arn:aws:iam::147672837953:user/ga-fcc-api-development
           # runtime: PYTHON_3
           region: ${{ secrets.AWS_REGION }}
           cpu: 1
