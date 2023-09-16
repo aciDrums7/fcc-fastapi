@@ -24,7 +24,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  deploy-to-aws-app-runner:
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +60,7 @@ jobs:
         id: deploy-apprunner
         uses: awslabs/amazon-app-runner-deploy@main
         with:
-          service: app-runner-image-deploy-service
+          service: app-runner-git-deploy-service
           image: ${{ steps.build-image.outputs.image }}
           access-role-arn: ${{ secrets.AWS_APP_RUNNER_ROLE_ARN }}
           region: ${{ secrets.AWS_REGION }}
