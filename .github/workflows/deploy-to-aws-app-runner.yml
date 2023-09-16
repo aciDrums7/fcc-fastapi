@@ -1,4 +1,4 @@
-name: Deploy to AWS App Runner - Image based
+name: Deploy to AWS App Runner
 on:
   workflow_run:
     workflows: ["Build and Test"]
@@ -44,7 +44,7 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "{image}={$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
       - name: Deploy to App Runner Image
         id: deploy-apprunner
@@ -53,8 +53,6 @@ jobs:
           service: app-runner-image-deploy-service
           image: ${{ steps.build-image.outputs.image }}
           access-role-arn: ${{ secrets.AWS_APP_RUNNER_ROLE_ARN }}
-          source-connection-arn: ${{ secrets.AWS_CONNECTION_SOURCE_ARN }}
-          # runtime: PYTHON_3
           region: ${{ secrets.AWS_REGION }}
           cpu: 1
           memory: 2

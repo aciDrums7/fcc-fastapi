@@ -1,3 +1,7 @@
+[![Build and Test](https://github.com/aciDrums7/fcc-fastapi/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/aciDrums7/fcc-fastapi/actions/workflows/build-and-test.yml)
+[![Deploy to Docker Hub](https://github.com/aciDrums7/fcc-fastapi/actions/workflows/deploy-to-docker-hub.yml/badge.svg)](https://github.com/aciDrums7/fcc-fastapi/actions/workflows/deploy-to-docker-hub.yml)
+[![Deploy to AWS App Runner - Image based](https://github.com/aciDrums7/fcc-fastapi/actions/workflows/deploy-to-aws-app-runner.yml/badge.svg)](https://github.com/aciDrums7/fcc-fastapi/actions/workflows/deploy-to-aws-app-runner.yml)
+
 # Backend clone  of social media app by using FastAPI
 
 #### This API  has 4 routes
