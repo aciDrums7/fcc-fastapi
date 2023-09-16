@@ -32,6 +32,8 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -51,7 +53,8 @@ jobs:
           service: app-runner-image-deploy-service
           image: ${{ steps.build-image.outputs.image }}
           access-role-arn: ${{ secrets.AWS_APP_RUNNER_ROLE_ARN }}
-          runtime: PYTHON_3
+          source-connection-arn: ${{ secrets.AWS_CONNECTION_SOURCE_ARN }}
+          # runtime: PYTHON_3
           region: ${{ secrets.AWS_REGION }}
           cpu: 1
           memory: 2
