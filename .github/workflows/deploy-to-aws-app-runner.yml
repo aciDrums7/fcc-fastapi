@@ -1,9 +1,9 @@
 name: Deploy to AWS App Runner
 on:
-  workflow_run:
-    workflows: ["Build and Test"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["Build and Test"]
+  #   types:
+  #     - completed
 
   workflow_dispatch: # Allow manual invocation of the workflow
 
@@ -41,17 +41,21 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
+        #! THE OUTPUT COMMAND IS FUNDAMENTAL! WITHOUT IT, THE DEPLOY-APPRUNNER
+        #! STEP WILL TRY TO GO IN THE CODE BASE MODE AND REQUIRE ALL ITS PARAMS
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "{image}={$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Deploy to App Runner Image
         id: deploy-apprunner
+        env:
+          ECR_IMAGE: $GITHUB_OUTPUT
         uses: awslabs/amazon-app-runner-deploy@main
         with:
           service: app-runner-image-deploy-service
-          image: ${{ steps.build-image.outputs.image }}
+          image: $ECR_IMAGE
           access-role-arn: ${{ secrets.AWS_APP_RUNNER_ROLE_ARN }}
           region: ${{ secrets.AWS_REGION }}
           cpu: 1
