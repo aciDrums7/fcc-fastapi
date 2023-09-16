@@ -1,16 +1,16 @@
 name: Build and Test
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "*.md"
-      - "*.vscode"
+  # push:
+  #   branches: [main]
+  #   paths-ignore:
+  #     - "*.md"
+  #     - "*.vscode"
 
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "*.md"
-      - "*.vscode"
+  # pull_request:
+  #   branches: [main]
+  #   paths-ignore:
+  #     - "*.md"
+  #     - "*.vscode"
 
   workflow_dispatch: # Allow manual invocation of the workflow
 

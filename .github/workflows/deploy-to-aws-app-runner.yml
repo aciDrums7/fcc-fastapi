@@ -1,9 +1,14 @@
 name: Deploy to AWS App Runner
 on:
-  workflow_run:
-    workflows: ["Build and Test"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["Build and Test"]
+  #   types:
+  #     - completed
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "*.vscode"
 
   workflow_dispatch: # Allow manual invocation of the workflow
 
@@ -46,16 +51,14 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "{image}={$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Deploy to App Runner Image
         id: deploy-apprunner
-        env:
-          ECR_IMAGE: $GITHUB_OUTPUT
         uses: awslabs/amazon-app-runner-deploy@main
         with:
           service: app-runner-image-deploy-service
-          image: $ECR_IMAGE
+          image: ${{ steps.build-image.outputs.image }}
           access-role-arn: ${{ secrets.AWS_APP_RUNNER_ROLE_ARN }}
           region: ${{ secrets.AWS_REGION }}
           cpu: 1
