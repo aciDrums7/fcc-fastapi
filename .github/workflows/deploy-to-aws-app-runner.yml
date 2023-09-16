@@ -1,9 +1,9 @@
 name: Deploy to AWS App Runner
 on:
-  # workflow_run:
-  #   workflows: ["Build and Test"]
-  #   types:
-  #     - completed
+  workflow_run:
+    workflows: ["Build and Test"]
+    types:
+      - completed
 
   workflow_dispatch: # Allow manual invocation of the workflow
 
