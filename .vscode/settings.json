@@ -32,8 +32,8 @@
     "python.testing.pytestEnabled": true,
     "yaml.schemas": {
         "https://json.schemastore.org/github-action.json": [
-            "file:///Users/acidrums7/Documents/Coding/Web2/freeCodeCamp/Sanjeev%20Thiyagarajan/Python%20API%20Development%20-%20Comprehensive%20Course%20for%20Beginners/FastAPI/.github/workflows/build-and-test.yml",
             "file:///Users/acidrums7/Documents/Coding/Web2/freeCodeCamp/Sanjeev%20Thiyagarajan/Python%20API%20Development%20-%20Comprehensive%20Course%20for%20Beginners/FastAPI/.github/workflows/deploy-to-fly-io.yml"
-        ]
+        ],
+        "https://json.schemastore.org/github-workflow.json": "file:///Users/acidrums7/Documents/Coding/Web2/freeCodeCamp/Sanjeev%20Thiyagarajan/Python%20API%20Development%20-%20Comprehensive%20Course%20for%20Beginners/FastAPI/.github/workflows/build-and-test.yml"
     }
 }

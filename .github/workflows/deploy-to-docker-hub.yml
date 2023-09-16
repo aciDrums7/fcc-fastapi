@@ -1,9 +1,24 @@
 name: Deploy to Docker Hub
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "*.vscode"
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "*.vscode"
+
   workflow_run:
-    workflows: ["Build and Test fCC FastAPI Project"]
+    workflows: ["Build and Test"]
     types:
       - completed
+
+  workflow_dispatch: # Allow manual invocation of the workflow
+
 jobs:
   deploy-to-docker-hub:
     runs-on: ubuntu-latest

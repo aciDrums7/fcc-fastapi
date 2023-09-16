@@ -1,11 +1,26 @@
-name: Build and Test fCC FastAPI Project
-on: [push, pull_request]
+name: Build and Test
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "*.vscode"
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "*.vscode"
+
+  workflow_dispatch: # Allow manual invocation of the workflow
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     environment:
       name: TEST
+
     env:
       DB_USERNAME: ${{  secrets.DB_USERNAME  }}
       DB_PASSWORD: ${{  secrets.DB_PASSWORD  }}
@@ -50,8 +65,8 @@ jobs:
       - name: Install Python 3.11 + Cache pip dependencies
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
 
       - name: Update pip
         run: python -m pip install --upgrade pip

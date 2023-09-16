@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database.db_config import get_db, Base
 from app.main import app
-from app.config import settings
+from app.settings import settings
 from app.authentication import oauth2_service
 from app.models.posts_model import PostModel
 
