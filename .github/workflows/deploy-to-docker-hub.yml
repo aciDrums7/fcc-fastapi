@@ -1,17 +1,5 @@
 name: Deploy to Docker Hub
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "*.md"
-      - "*.vscode"
-
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "*.md"
-      - "*.vscode"
-
   workflow_run:
     workflows: ["Build and Test"]
     types:
