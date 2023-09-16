@@ -57,7 +57,7 @@ jobs:
         id: deploy-apprunner
         uses: awslabs/amazon-app-runner-deploy@main
         with:
-          service: app-runner-image-deploy-service
+          service: fcc-fastapi
           image: ${{ steps.build-image.outputs.image }}
           access-role-arn: ${{ secrets.AWS_APP_RUNNER_ROLE_ARN }}
           region: ${{ secrets.AWS_REGION }}
